@@ -4,6 +4,8 @@
  | native method zone size (2 bytes) | eden size (4 bytes) | semaphore table max size (2 bytes) | the2ndUnknownShort (2 bytes) | = 10 bytes
  | first segment size (4 bytes) | free old space (4 bytes) | = 8 bytes
  | The rest 8 bytes are empty""
+
+(spur specialObjectsArray slotAt: 1) address = spur firstObject address.
 "
 Class {
 	#name : #SpurImage,

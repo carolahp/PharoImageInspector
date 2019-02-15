@@ -1,34 +1,6 @@
 "
-""| version (4 bytes) | headerSize (4 bytes) | datasize (4 bytes) | old base address  (4 bytes) | special objects oop (4 bytes) | = 20 bytes
- | last hash (4 bytes)| saved window size (4 bytes) | headerFlags (4 bytes) | extraVMMemory (4bytes) | stack pages (2 bytes)   | = 18 bytes
- | native method zone size (2 bytes) | eden size (4 bytes) | semaphore table max size (2 bytes) | the2ndUnknownShort (2 bytes) | = 10 bytes
- | first segment size (4 bytes) | free old space (4 bytes) | = 8 bytes
- | The rest 8 bytes are empty""
-
-asd := Smalltalk imagePath asFileReference binaryReadStream contents.
-
-version := (asd copyFrom: 1 to: 4) unsignedLongAt: 1 bigEndian: false.
-headerStart := 1.
-
-headerSize := (asd copyFrom: 5 to: 8) unsignedLongAt: 1 bigEndian: false.
-dataSize := (asd copyFrom: 9 to: 12) unsignedLongAt: 1 bigEndian: false.
-self assert: (headerSize + dataSize) = asd size.
-
-oldBaseAddress := (asd copyFrom: 13 to: 16) unsignedLongAt: 1 bigEndian: false.
-specialObjectsArrayOop := (asd copyFrom: 17 to: 20) unsignedLongAt: 1 bigEndian: false.
-
-lastHash := (asd copyFrom: 21 to: 24) unsignedLongAt: 1 bigEndian: false.
-savedWindowSize := (asd copyFrom: 25 to: 28) unsignedLongAt: 1 bigEndian: false.
-headerFlags := (asd copyFrom: 29 to: 32) unsignedLongAt: 1 bigEndian: false.
-
-specialObjectsArrayFixedOop := specialObjectsArrayOop - oldBaseAddress + headerSize + 1.
-(asd copyFrom: specialObjectsArrayFixedOop + 4 to: specialObjectsArrayFixedOop + 7) longAt: 1 bigEndian: false.
-
-""----------------------------------""
-
-firstObject endAddress.
-
-firstObject := SpurObjectReader on: headerSize + 1 memory: asd.
+spur := SpurImage onFile: Smalltalk imagePath.
+firstObject := spur firstObject.
 secondObject := firstObject nextObject.
 thirdObject := secondObject nextObject.
 fourthObject := thirdObject nextObject.
@@ -43,30 +15,22 @@ fifthObject classIndex.
 fifthObject format.
 fifthObject numberOfSlots.
 
-fifthObject nextObject numberOfSlots.
+fifthObject nextObject nextObject nextObject nextObject nextObject nextObject numberOfSlots.
 
-secondObjectOop := (asd at: firstObjectEnd + 4 + 7) = 16rFF
-	ifTrue: [ firstObjectEnd + 4 ]
-	ifFalse: [ firstObjectEnd ].
-secondObjectSlots := asd at: secondObjectOop +7.
-secondObjectSize := secondObjectSlots = 0
-	ifTrue: [ 1 * 4 ]
-	ifFalse: [ secondObjectSlots = 16rFF
-			ifTrue: [ self halt ]
-			ifFalse: [ secondObjectSlots * 4 ] ].
-secondObjectEnd := secondObjectOop + secondObjectSize.
+(spur specialObjectsArray slotAt: 1) address = spur firstObject address.
 
-nilObject := (asd copyFrom: 65 to: 65 + 3) asInteger.
-nilObject asInteger >> (64 - 8).
-(nilObject asInteger >> 24) bitAnd: 2r11111.
+1) Podemos encontrar a nil?
+2) Podemos encontrar a true?
+3) Podemos encontrar a false?
 
-trueObject := (asd copyFrom: 69 to: 69 + 3) asInteger.
-trueObject asInteger >> (64 - 8).
-(trueObject asInteger >> 24) bitAnd: 2r11111.
-
-falseObject := (asd copyFrom: 73 to: 77) asInteger.
-trueObject asInteger >> (64 - 8).
-(trueObject asInteger >> 24) bitAnd: 2r11111.
+4) Podemos encontrar la tabla de clases?
+  4.1) Como a partir de un class index (en el header del objeto) encontramos una clase en la tabla.
+  4.2) Una vez que tenes la clase, recuperar el nombre de la clase (7ma variable es el nombre)
+  4.3) Transformar un string en la imagen a un string normal.
+  4.4) hacer un pretty print del objeto:
+     - nombre de la clase
+     - tipo de objeto / format
+     - tamaño
 "
 Class {
 	#name : #SpurObject,
