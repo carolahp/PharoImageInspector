@@ -32,7 +32,13 @@ SpurImage class >> onFile: aFile [
 { #category : #accessing }
 SpurImage >> firstObject [
 
-	^ SpurObject on: headerSize + 1 memory: memory.
+	^ SpurObject on: headerSize + 1 image: self
+]
+
+{ #category : #accessing }
+SpurImage >> headerSize [
+
+	^ headerSize
 ]
 
 { #category : #accessing }
@@ -43,8 +49,18 @@ SpurImage >> initialize [
 ]
 
 { #category : #accessing }
+SpurImage >> memory [
+	^ memory
+]
+
+{ #category : #accessing }
 SpurImage >> memory: aCollection [ 
 	memory := aCollection
+]
+
+{ #category : #accessing }
+SpurImage >> oldBaseAddress [
+	^ oldBaseAddress
 ]
 
 { #category : #accessing }
@@ -80,5 +96,5 @@ SpurImage >> readImageHeader [
 { #category : #accessing }
 SpurImage >> specialObjectsArray [
 
-	^ SpurObject on: specialObjectsArrayOop - oldBaseAddress + headerSize + 1 memory: memory.
+	^ SpurObject on: specialObjectsArrayOop - oldBaseAddress + headerSize + 1 image: self
 ]

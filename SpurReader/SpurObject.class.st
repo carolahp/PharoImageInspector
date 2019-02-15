@@ -73,18 +73,23 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'address',
-		'memory'
+		'image'
 	],
 	#category : #SpurReader
 }
 
 { #category : #'as yet unclassified' }
-SpurObject class >> on: address memory: aMemory [
+SpurObject class >> on: address image: anImage [
 
 	^ self new
 		address: address;
-		memory: aMemory;
+		image: anImage;
 		yourself
+]
+
+{ #category : #accessing }
+SpurObject >> address [
+	^ address
 ]
 
 { #category : #accessing }
@@ -112,7 +117,7 @@ SpurObject >> byteSize [
 SpurObject >> classIndex [
 	
 	| first32Bytes |
-	first32Bytes := memory unsignedLongAt: address bigEndian: false.
+	first32Bytes := self memory unsignedLongAt: address bigEndian: false.
 	^ first32Bytes bitAnd: (2 raisedTo: 22) -1
 ]
 
@@ -131,14 +136,14 @@ SpurObject >> endAddress [
 SpurObject >> format [
 	
 	| first32Bytes |
-	first32Bytes := memory unsignedLongAt: address bigEndian: false.
+	first32Bytes := self memory unsignedLongAt: address bigEndian: false.
 	^ (first32Bytes >> 24) bitAnd: 2r11111
 ]
 
 { #category : #accessing }
 SpurObject >> headerInteger [
 
-	^ memory integerAt: address size: 8 signed: false
+	^ self memory integerAt: address size: 8 signed: false
 ]
 
 { #category : #'as yet unclassified' }
@@ -148,18 +153,24 @@ SpurObject >> headerSize [
 ]
 
 { #category : #accessing }
-SpurObject >> memory: aCollection [ 
-	memory := aCollection
+SpurObject >> image: anImage [ 
+	image := anImage
+]
+
+{ #category : #accessing }
+SpurObject >> memory [
+
+	^ image memory
 ]
 
 { #category : #'as yet unclassified' }
 SpurObject >> nextObject [
 
 	| maybeObject |
-	maybeObject := SpurObject on: self endAddress + self headerSize memory: memory.
+	maybeObject := SpurObject on: self endAddress + self headerSize image: image.
 	^ maybeObject basicNumberOfSlots = 16rFF
 		ifTrue: [ maybeObject ]
-		ifFalse: [ SpurObject on: self endAddress memory: memory ].
+		ifFalse: [ SpurObject on: self endAddress image: image ].
 ]
 
 { #category : #'as yet unclassified' }
@@ -181,7 +192,15 @@ SpurObject >> oop [
 { #category : #accessing }
 SpurObject >> previousHeaderInteger [
 
-	^ memory integerAt: address - self headerSize size: 4 signed: false
+	^ self memory integerAt: address - self headerSize size: 4 signed: false
+]
+
+{ #category : #accessing }
+SpurObject >> slotAt: anInteger [ 
+	
+	| bodyAddress |
+	bodyAddress := address + self headerSize + ((anInteger - 1) * self wordSize).
+	^ SpurObject on: (self memory longAt: bodyAddress bigEndian: false) - image oldBaseAddress + image headerSize + 1 image: image
 ]
 
 { #category : #'as yet unclassified' }
