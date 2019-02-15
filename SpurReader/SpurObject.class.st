@@ -69,7 +69,7 @@ trueObject asInteger >> (64 - 8).
 (trueObject asInteger >> 24) bitAnd: 2r11111.
 "
 Class {
-	#name : #SpurObjectReader,
+	#name : #SpurObject,
 	#superclass : #Object,
 	#instVars : [
 		'address',
@@ -79,7 +79,7 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-SpurObjectReader class >> on: address memory: aMemory [
+SpurObject class >> on: address memory: aMemory [
 
 	^ self new
 		address: address;
@@ -88,18 +88,18 @@ SpurObjectReader class >> on: address memory: aMemory [
 ]
 
 { #category : #accessing }
-SpurObjectReader >> address: anInteger [ 
+SpurObject >> address: anInteger [ 
 	address := anInteger
 ]
 
 { #category : #accessing }
-SpurObjectReader >> basicNumberOfSlots [
+SpurObject >> basicNumberOfSlots [
 
 	^ self headerInteger >> (self headerSize * 8 "bits" - 8 "number of slots mask size")
 ]
 
 { #category : #'as yet unclassified' }
-SpurObjectReader >> byteSize [
+SpurObject >> byteSize [
 	
 	| numberOfSlots |
 	numberOfSlots := self numberOfSlots.
@@ -109,7 +109,7 @@ SpurObjectReader >> byteSize [
 ]
 
 { #category : #accessing }
-SpurObjectReader >> classIndex [
+SpurObject >> classIndex [
 	
 	| first32Bytes |
 	first32Bytes := memory unsignedLongAt: address bigEndian: false.
@@ -117,7 +117,7 @@ SpurObjectReader >> classIndex [
 ]
 
 { #category : #'as yet unclassified' }
-SpurObjectReader >> endAddress [
+SpurObject >> endAddress [
 
 	| basicSize padding |
 	"All objects start aligned to 64 bits.
@@ -128,7 +128,7 @@ SpurObjectReader >> endAddress [
 ]
 
 { #category : #accessing }
-SpurObjectReader >> format [
+SpurObject >> format [
 	
 	| first32Bytes |
 	first32Bytes := memory unsignedLongAt: address bigEndian: false.
@@ -136,34 +136,34 @@ SpurObjectReader >> format [
 ]
 
 { #category : #accessing }
-SpurObjectReader >> headerInteger [
+SpurObject >> headerInteger [
 
 	^ memory integerAt: address size: 8 signed: false
 ]
 
 { #category : #'as yet unclassified' }
-SpurObjectReader >> headerSize [
+SpurObject >> headerSize [
 
 	^ 8 "always 64 bits"
 ]
 
 { #category : #accessing }
-SpurObjectReader >> memory: aCollection [ 
+SpurObject >> memory: aCollection [ 
 	memory := aCollection
 ]
 
 { #category : #'as yet unclassified' }
-SpurObjectReader >> nextObject [
+SpurObject >> nextObject [
 
 	| maybeObject |
-	maybeObject := SpurObjectReader on: self endAddress + self headerSize memory: memory.
+	maybeObject := SpurObject on: self endAddress + self headerSize memory: memory.
 	^ maybeObject basicNumberOfSlots = 16rFF
 		ifTrue: [ maybeObject ]
-		ifFalse: [ SpurObjectReader on: self endAddress memory: memory ].
+		ifFalse: [ SpurObject on: self endAddress memory: memory ].
 ]
 
 { #category : #'as yet unclassified' }
-SpurObjectReader >> numberOfSlots [
+SpurObject >> numberOfSlots [
 
 	| slotsInHeader |
 	slotsInHeader := self basicNumberOfSlots.
@@ -173,19 +173,19 @@ SpurObjectReader >> numberOfSlots [
 ]
 
 { #category : #'as yet unclassified' }
-SpurObjectReader >> oop [
+SpurObject >> oop [
 
 	^ address
 ]
 
 { #category : #accessing }
-SpurObjectReader >> previousHeaderInteger [
+SpurObject >> previousHeaderInteger [
 
 	^ memory integerAt: address - self headerSize size: 4 signed: false
 ]
 
 { #category : #'as yet unclassified' }
-SpurObjectReader >> wordSize [
+SpurObject >> wordSize [
 
 	^ 4
 ]
