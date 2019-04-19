@@ -137,7 +137,7 @@ SpurObject >> image: anImage [
 SpurObject >> indexInClassTable [
 	" Applies only if self contains a class.
 	Returns the index in the classTable of the class stored in objOop"
-	^ (self rawHashBits)
+	^ self rawHashBits
 ]
 
 { #category : #accessing }

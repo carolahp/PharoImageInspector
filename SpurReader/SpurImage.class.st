@@ -31,6 +31,11 @@ SpurImage class >> onFile: aFile [
 		yourself
 ]
 
+{ #category : #'special-classes' }
+SpurImage >> arrayClass [
+	^ self specialObjectsArray slotAt: 8
+]
+
 { #category : #constants }
 SpurImage >> arrayClassIndexPun [
 	^ 16
@@ -44,6 +49,16 @@ SpurImage >> arrayFormat [
 { #category : #'special-classes' }
 SpurImage >> byteArrayClass [
 	^ self specialObjectsArray slotAt: 27
+]
+
+{ #category : #'special-classes' }
+SpurImage >> byteStringClass [
+	^ self specialObjectsArray slotAt: 7
+]
+
+{ #category : #'special-classes' }
+SpurImage >> characterClass [
+	^ self specialObjectsArray slotAt: 20
 ]
 
 { #category : #constants }
