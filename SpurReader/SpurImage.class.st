@@ -31,16 +31,98 @@ SpurImage class >> onFile: aFile [
 		yourself
 ]
 
-{ #category : #accessing }
+{ #category : #constants }
+SpurImage >> arrayClassIndexPun [
+	^ 16
+]
+
+{ #category : #constants }
+SpurImage >> arrayFormat [
+	^ 2
+]
+
+{ #category : #'special-classes' }
+SpurImage >> byteArrayClass [
+	^ self specialObjectsArray slotAt: 27
+]
+
+{ #category : #constants }
+SpurImage >> classIndexFieldWidth [
+	"22-bit class mask => ~ 4M classes"
+	^22
+]
+
+{ #category : #'special-objects' }
+SpurImage >> classTableFirstPage [
+	^ self hiddenRootsObj classTableFirstPage
+]
+
+{ #category : #constants }
+SpurImage >> classTableMajorIndexShift [
+	"1024 entries per page (2^10); 22 bit classIndex implies 2^12 pages"
+	^10
+]
+
+{ #category : #constants }
+SpurImage >> classTableMinorIndexMask [
+	"1024 entries per page (2^10); 22 bit classIndex implies 2^12 pages"
+	"self basicNew classTableMinorIndexMask"
+	^1 << self classTableMajorIndexShift - 1
+]
+
+{ #category : #constants }
+SpurImage >> classTablePageSize [
+
+	^1 << self classTableMajorIndexShift
+]
+
+{ #category : #constants }
+SpurImage >> classTableRootSlots [
+	"Answer the number of slots for class table pages in the hidden root object."
+	^1 << (self classIndexFieldWidth - self classTableMajorIndexShift)
+]
+
+{ #category : #'special-objects' }
+SpurImage >> falseObject [
+	^ self nilObject nextObject
+]
+
+{ #category : #'special-objects' }
 SpurImage >> firstObject [
 
 	^ SpurObject on: headerSize + 1 image: self
+]
+
+{ #category : #'special-objects' }
+SpurImage >> freeListObj [
+
+	^ self trueObject 	nextObject
 ]
 
 { #category : #accessing }
 SpurImage >> headerSize [
 
 	^ headerSize
+]
+
+{ #category : #'special-objects' }
+SpurImage >> hiddenRootsObj [
+
+	^ SpurHiddenRoots 
+		on: self freeListObj nextObject address
+		image: self
+]
+
+{ #category : #constants }
+SpurImage >> identityHashHalfWordMask [
+
+	^16r3fffff
+]
+
+{ #category : #constants }
+SpurImage >> indexInClassTable: objOop [
+	" Returns the index in the classTable of the class stored in objOop"
+	^ 1 + (self rawHashBitsOf: objOop)
 ]
 
 { #category : #accessing }
@@ -60,9 +142,21 @@ SpurImage >> memory: aCollection [
 	memory := aCollection
 ]
 
+{ #category : #'special-objects' }
+SpurImage >> nilObject [
+	^ self firstObject
+]
+
 { #category : #accessing }
 SpurImage >> oldBaseAddress [
 	^ oldBaseAddress
+]
+
+{ #category : #constants }
+SpurImage >> rawHashBitsOf: objOop [
+	" Returns the index in the classTable of the class stored in objOop"
+	self flag: #endianness.
+	^((memory unsignedLongAt: objOop + 4 bigEndian: false) bitAnd: self identityHashHalfWordMask)
 ]
 
 { #category : #accessing }
@@ -95,8 +189,18 @@ SpurImage >> readImageHeader [
 		bigEndian: false.
 ]
 
+{ #category : #'special-classes' }
+SpurImage >> smallIntegerClass [
+	^ self specialObjectsArray slotAt: 6
+]
+
 { #category : #accessing }
 SpurImage >> specialObjectsArray [
 
 	^ SpurObject on: specialObjectsArrayOop - oldBaseAddress + headerSize + 1 image: self
+]
+
+{ #category : #'special-objects' }
+SpurImage >> trueObject [
+	^ self falseObject nextObject
 ]

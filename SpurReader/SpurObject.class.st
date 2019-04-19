@@ -52,6 +52,12 @@ SpurObject class >> on: address image: anImage [
 ]
 
 { #category : #accessing }
+SpurObject >> = aSpurObject [
+	^ self address = aSpurObject address
+	
+]
+
+{ #category : #accessing }
 SpurObject >> address [
 	^ address
 ]
@@ -122,6 +128,11 @@ SpurObject >> image: anImage [
 ]
 
 { #category : #accessing }
+SpurObject >> instSpec [ 
+	^ (self format bitShift: -16) bitAnd: 16r1F
+]
+
+{ #category : #accessing }
 SpurObject >> memory [
 
 	^ image memory
@@ -163,6 +174,8 @@ SpurObject >> previousHeaderInteger [
 SpurObject >> slotAt: anInteger [ 
 	
 	| bodyAddress |
+	self assert: anInteger > 0 description: 'Index must be greater than 0'.
+	self assert: self numberOfSlots >= anInteger description: 'Index Out of Bounds'.
 	bodyAddress := address + self headerSize + ((anInteger - 1) * self wordSize).
 	^ SpurObject on: (self memory longAt: bodyAddress bigEndian: false) - image oldBaseAddress + image headerSize + 1 image: image
 ]
