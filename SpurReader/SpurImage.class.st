@@ -113,18 +113,6 @@ SpurImage >> hiddenRootsObj [
 		image: self
 ]
 
-{ #category : #constants }
-SpurImage >> identityHashHalfWordMask [
-
-	^16r3fffff
-]
-
-{ #category : #constants }
-SpurImage >> indexInClassTable: objOop [
-	" Returns the index in the classTable of the class stored in objOop"
-	^ 1 + (self rawHashBitsOf: objOop)
-]
-
 { #category : #accessing }
 SpurImage >> initialize [
 
@@ -150,13 +138,6 @@ SpurImage >> nilObject [
 { #category : #accessing }
 SpurImage >> oldBaseAddress [
 	^ oldBaseAddress
-]
-
-{ #category : #constants }
-SpurImage >> rawHashBitsOf: objOop [
-	" Returns the index in the classTable of the class stored in objOop"
-	self flag: #endianness.
-	^((memory unsignedLongAt: objOop + 4 bigEndian: false) bitAnd: self identityHashHalfWordMask)
 ]
 
 { #category : #accessing }

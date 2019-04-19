@@ -122,9 +122,22 @@ SpurObject >> headerSize [
 	^ 8 "always 64 bits"
 ]
 
+{ #category : #constants }
+SpurObject >> identityHashHalfWordMask [
+
+	^16r3fffff
+]
+
 { #category : #accessing }
 SpurObject >> image: anImage [ 
 	image := anImage
+]
+
+{ #category : #class }
+SpurObject >> indexInClassTable [
+	" Applies only if self contains a class.
+	Returns the index in the classTable of the class stored in objOop"
+	^ 1 + (self rawHashBits)
 ]
 
 { #category : #accessing }
@@ -168,6 +181,13 @@ SpurObject >> oop [
 SpurObject >> previousHeaderInteger [
 
 	^ self memory integerAt: address - self headerSize size: 4 signed: false
+]
+
+{ #category : #'as yet unclassified' }
+SpurObject >> rawHashBits [
+	" Returns the index in the classTable of the class in objOop"
+	self flag: #endianness.
+	^((self memory unsignedLongAt: self oop + 4 bigEndian: false) bitAnd: self identityHashHalfWordMask)
 ]
 
 { #category : #accessing }
