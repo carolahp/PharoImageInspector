@@ -37,7 +37,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'address',
-		'image'
+		'image',
+		'lastBit'
 	],
 	#category : #SpurReader
 }
@@ -193,11 +194,25 @@ SpurObject >> rawHashBits [
 { #category : #accessing }
 SpurObject >> slotAt: anInteger [ 
 	
-	| bodyAddress |
+	| bodyAddress first32Bits last2bits |
 	self assert: anInteger > 0 description: 'Index must be greater than 0'.
 	self assert: self numberOfSlots >= anInteger description: 'Index Out of Bounds'.
+	
 	bodyAddress := address + self headerSize + ((anInteger - 1) * self wordSize).
-	^ SpurObject on: (self memory longAt: bodyAddress bigEndian: false) - image oldBaseAddress + image headerSize + 1 image: image
+	first32Bits := self memory longAt: bodyAddress bigEndian: false.
+	last2bits := first32Bits bitAnd: 2r11.
+	last2bits ~= 0 
+		ifTrue: [ 
+			"is inmediate" 
+			lastBit := last2bits bitAnd: 2r01.
+			lastBit = 1
+				ifTrue: [ 
+					"Smallinteger"
+					 ^ (first32Bits >> 1) as31BitSmallInt ]
+				ifFalse: [ 
+					"Character" 
+					self halt.]  ].
+	^ SpurObject on: first32Bits - image oldBaseAddress + image headerSize + 1 image: image
 ]
 
 { #category : #'as yet unclassified' }
