@@ -33,6 +33,7 @@ SpurImage class >> onFile: aFile [
 
 { #category : #'special-classes' }
 SpurImage >> arrayClass [
+	"indexInClassTable 51"
 	^ self specialObjectsArray slotAt: 8
 ]
 
@@ -48,16 +49,19 @@ SpurImage >> arrayFormat [
 
 { #category : #'special-classes' }
 SpurImage >> byteArrayClass [
+	"indexInClassTable 50"
 	^ self specialObjectsArray slotAt: 27
 ]
 
 { #category : #'special-classes' }
 SpurImage >> byteStringClass [
+	"indexInClassTable 52"
 	^ self specialObjectsArray slotAt: 7
 ]
 
 { #category : #'special-classes' }
 SpurImage >> characterClass [
+	"indexInClassTable 2"
 	^ self specialObjectsArray slotAt: 20
 ]
 
@@ -135,6 +139,18 @@ SpurImage >> initialize [
 	self readImageHeader.
 ]
 
+{ #category : #'special-classes' }
+SpurImage >> largeNegativeIntegerClass [
+	"indexInClassTable 32"
+	^ self specialObjectsArray slotAt: 43
+]
+
+{ #category : #'special-classes' }
+SpurImage >> largePositiveIntegerClass [
+	"indexInClassTable 33"
+	^ self specialObjectsArray slotAt: 14
+]
+
 { #category : #accessing }
 SpurImage >> memory [
 	^ memory
@@ -145,6 +161,12 @@ SpurImage >> memory: aCollection [
 	memory := aCollection
 ]
 
+{ #category : #'special-classes' }
+SpurImage >> messageClass [
+	"indexInClassTable 35"
+	^ self specialObjectsArray slotAt: 16
+]
+
 { #category : #'special-objects' }
 SpurImage >> nilObject [
 	^ self firstObject
@@ -153,6 +175,12 @@ SpurImage >> nilObject [
 { #category : #accessing }
 SpurImage >> oldBaseAddress [
 	^ oldBaseAddress
+]
+
+{ #category : #'special-classes' }
+SpurImage >> pointClass [
+	"indexInClassTable 54"
+	^ self specialObjectsArray slotAt: 13
 ]
 
 { #category : #accessing }
@@ -186,7 +214,14 @@ SpurImage >> readImageHeader [
 ]
 
 { #category : #'special-classes' }
+SpurImage >> semaphoreClass [
+	"indexInClassTable 48"
+	^ self specialObjectsArray slotAt: 19
+]
+
+{ #category : #'special-classes' }
 SpurImage >> smallIntegerClass [
+	"indexInClassTable 1"
 	^ self specialObjectsArray slotAt: 6
 ]
 
