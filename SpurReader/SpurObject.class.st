@@ -38,7 +38,7 @@ Class {
 	#instVars : [
 		'address',
 		'image',
-		'lastBit'
+		'spurLayout'
 	],
 	#category : #SpurReader
 }
@@ -66,6 +66,18 @@ SpurObject >> address [
 { #category : #accessing }
 SpurObject >> address: anInteger [ 
 	address := anInteger
+]
+
+{ #category : #converting }
+SpurObject >> asLocalByteString [
+	| localString |
+	localString := ByteString new: self byteSize.
+	1 to: localString size do: [ :i |
+		self halt.
+		localString byteAt: i put: (self memory integerAt: (self slotAt: i) address size: 8 signed: false) .
+	].
+	^ localString.
+	
 ]
 
 { #category : #accessing }
@@ -127,6 +139,11 @@ SpurObject >> headerSize [
 SpurObject >> identityHashHalfWordMask [
 
 	^16r3fffff
+]
+
+{ #category : #accessing }
+SpurObject >> image [
+	^ image
 ]
 
 { #category : #accessing }
@@ -194,25 +211,17 @@ SpurObject >> rawHashBits [
 { #category : #accessing }
 SpurObject >> slotAt: anInteger [ 
 	
-	| bodyAddress first32Bits last2bits |
-	self assert: anInteger > 0 description: 'Index must be greater than 0'.
-	self assert: self numberOfSlots >= anInteger description: 'Index Out of Bounds'.
-	
-	bodyAddress := address + self headerSize + ((anInteger - 1) * self wordSize).
-	first32Bits := self memory longAt: bodyAddress bigEndian: false.
-	last2bits := first32Bits bitAnd: 2r11.
-	last2bits ~= 0 
-		ifTrue: [ 
-			"is inmediate" 
-			lastBit := last2bits bitAnd: 2r01.
-			lastBit = 1
-				ifTrue: [ 
-					"Smallinteger"
-					 ^ (first32Bits >> 1) as31BitSmallInt ]
-				ifFalse: [ 
-					"Character" 
-					self halt.]  ].
-	^ SpurObject on: first32Bits - image oldBaseAddress + image headerSize + 1 image: image
+	^ self spurLayout slotAt: anInteger 
+]
+
+{ #category : #accessing }
+SpurObject >> spurLayout [
+	^ spurLayout ifNil: [ spurLayout := SpurLayout on: self image: image ]
+]
+
+{ #category : #accessing }
+SpurObject >> spurLayout: anObject [
+	spurLayout := anObject
 ]
 
 { #category : #'as yet unclassified' }
