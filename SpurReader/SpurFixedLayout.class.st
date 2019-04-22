@@ -10,7 +10,7 @@ SpurFixedLayout >> slotAt: anInteger [
 	| bodyAddress first32Bits last2bits lastBit |
 	self assert: anInteger > 0 description: 'Index must be greater than 0'.
 	self assert: self numberOfSlots >= anInteger description: 'Index Out of Bounds'.
-	
+
 	bodyAddress := self address + self headerSize + ((anInteger - 1) * self wordSize).
 	first32Bits := self memory longAt: bodyAddress bigEndian: false.
 	last2bits := first32Bits bitAnd: 2r11.

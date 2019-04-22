@@ -7,14 +7,16 @@ Class {
 { #category : #accessing }
 SpurByteLayout >> slotAt: anInteger [ 
 	
-	| bodyAddress pointerIndex |
-	
+	| bodyAddress isLastSlot length |
 	self assert: anInteger > 0 description: 'Index must be greater than 0'.
-	self assert: self numberOfSlots * self wordSize >= anInteger description: 'Index Out of Bounds'.
-	"the number of the slot that contains the pointer to the 32 bits "
-	
-	bodyAddress := self address + self headerSize + ((anInteger - 1)).
-	
-	^ (self memory at: bodyAddress) asCharacter.
+	self assert: self numberOfSlots >= anInteger description: 'Index Out of Bounds'.
+
+	isLastSlot := anInteger = self numberOfSlots .
+	 
+	length := isLastSlot 
+						ifTrue: [ (self object format % 16 ) // self wordSize  ]
+						ifFalse: [ self wordSize - 1 ].	
+	bodyAddress := self address + self headerSize + ((anInteger - 1) * self wordSize).
+	^ (self memory copyFrom: bodyAddress to: bodyAddress + length).
 	
 ]

@@ -35,6 +35,11 @@ SpurLayout >> address [
 ]
 
 { #category : #accessing }
+SpurLayout >> headerInteger [
+	^ self object headerInteger 
+]
+
+{ #category : #accessing }
 SpurLayout >> headerSize [
 	^ self object headerSize
 ]
@@ -62,6 +67,11 @@ SpurLayout >> object [
 { #category : #accessing }
 SpurLayout >> object: anObject [
 	object := anObject
+]
+
+{ #category : #accessing }
+SpurLayout >> previousHeaderInteger [ 
+	^ self object previousHeaderInteger
 ]
 
 { #category : #accessing }

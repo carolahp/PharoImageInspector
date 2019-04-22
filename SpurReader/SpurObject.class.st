@@ -104,6 +104,11 @@ SpurObject >> classIndex [
 	^ first32Bytes bitAnd: (2 raisedTo: 22) -1
 ]
 
+{ #category : #accessing }
+SpurObject >> className [ 
+	^ (self slotAt: self slotIndexForClassName) asString
+]
+
 { #category : #'as yet unclassified' }
 SpurObject >> endAddress [
 
@@ -212,6 +217,11 @@ SpurObject >> rawHashBits [
 SpurObject >> slotAt: anInteger [ 
 	
 	^ self spurLayout slotAt: anInteger 
+]
+
+{ #category : #constants }
+SpurObject >> slotIndexForClassName [
+	^ 7
 ]
 
 { #category : #accessing }
