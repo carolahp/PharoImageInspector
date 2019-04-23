@@ -5,6 +5,11 @@ Class {
 }
 
 { #category : #accessing }
+SpurFixedLayout >> asLocalByteArray [
+	^ self shouldNotImplement 
+]
+
+{ #category : #accessing }
 SpurFixedLayout >> slotAt: anInteger [ 
 	
 	| bodyAddress first32Bits last2bits lastBit |

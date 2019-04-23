@@ -68,22 +68,15 @@ SpurObject >> address: anInteger [
 	address := anInteger
 ]
 
-{ #category : #converting }
-SpurObject >> asLocalByteString [
-	| localString |
-	localString := ByteString new: self byteSize.
-	1 to: localString size do: [ :i |
-		self halt.
-		localString byteAt: i put: (self memory integerAt: (self slotAt: i) address size: 8 signed: false) .
-	].
-	^ localString.
-	
+{ #category : #'as yet unclassified' }
+SpurObject >> asLocalByteArray [ 
+	^ self spurLayout asLocalByteArray 
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing-slots' }
 SpurObject >> basicNumberOfSlots [
 
-	^ self headerInteger >> (self headerSize * 8 "bits" - 8 "number of slots mask size")
+	^ self spurLayout basicNumberOfSlots
 ]
 
 { #category : #'as yet unclassified' }
@@ -96,7 +89,7 @@ SpurObject >> byteSize [
 		ifFalse: [ numberOfSlots ]) * self wordSize.
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing-header' }
 SpurObject >> classIndex [
 	
 	| first32Bytes |
@@ -120,7 +113,7 @@ SpurObject >> endAddress [
 	^ address + basicSize + padding
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing-header' }
 SpurObject >> format [
 	
 	| first32Bytes |
@@ -128,7 +121,7 @@ SpurObject >> format [
 	^ (first32Bytes >> 24) bitAnd: 2r11111
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing-header' }
 SpurObject >> headerInteger [
 
 	^ self memory integerAt: address size: 8 signed: false
@@ -156,14 +149,14 @@ SpurObject >> image: anImage [
 	image := anImage
 ]
 
-{ #category : #class }
+{ #category : #'accessing-header' }
 SpurObject >> indexInClassTable [
 	" Applies only if self contains a class.
 	Returns the index in the classTable of the class stored in objOop"
 	^ self rawHashBits
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing-header' }
 SpurObject >> instSpec [ 
 	^ (self format bitShift: -16) bitAnd: 16r1F
 ]
@@ -187,11 +180,7 @@ SpurObject >> nextObject [
 { #category : #'as yet unclassified' }
 SpurObject >> numberOfSlots [
 
-	| slotsInHeader |
-	slotsInHeader := self basicNumberOfSlots.
-	slotsInHeader == 16rFF
-		ifTrue: [ ^ self previousHeaderInteger ].
-	^ slotsInHeader
+	^ self spurLayout numberOfSlots
 ]
 
 { #category : #'as yet unclassified' }
@@ -200,7 +189,7 @@ SpurObject >> oop [
 	^ address
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing-header' }
 SpurObject >> previousHeaderInteger [
 
 	^ self memory integerAt: address - self headerSize size: 4 signed: false
@@ -213,7 +202,7 @@ SpurObject >> rawHashBits [
 	^((self memory unsignedLongAt: self oop + 4 bigEndian: false) bitAnd: self identityHashHalfWordMask)
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing-slots' }
 SpurObject >> slotAt: anInteger [ 
 	
 	^ self spurLayout slotAt: anInteger 
@@ -234,7 +223,7 @@ SpurObject >> spurLayout: anObject [
 	spurLayout := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #constants }
 SpurObject >> wordSize [
 
 	^ 4

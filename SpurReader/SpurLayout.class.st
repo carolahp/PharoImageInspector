@@ -35,6 +35,21 @@ SpurLayout >> address [
 ]
 
 { #category : #accessing }
+SpurLayout >> asLocalByteArray [
+	^ self subclassResponsibility 
+]
+
+{ #category : #accessing }
+SpurLayout >> basicNumberOfSlots [
+	^ self headerInteger >> (self headerSize * 8 "bits" - 8 "number of slots mask size")
+]
+
+{ #category : #accessing }
+SpurLayout >> byteSize [
+	^ self object byteSize .
+]
+
+{ #category : #accessing }
 SpurLayout >> headerInteger [
 	^ self object headerInteger 
 ]
@@ -56,7 +71,12 @@ SpurLayout >> memory [
 
 { #category : #accessing }
 SpurLayout >> numberOfSlots [
-	^ self object numberOfSlots
+
+	| slotsInHeader |
+	slotsInHeader := self basicNumberOfSlots.
+	slotsInHeader == 16rFF
+		ifTrue: [ ^ self previousHeaderInteger ].
+	^ slotsInHeader
 ]
 
 { #category : #accessing }

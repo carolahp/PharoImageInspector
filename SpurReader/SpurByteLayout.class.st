@@ -5,18 +5,34 @@ Class {
 }
 
 { #category : #accessing }
+SpurByteLayout >> asLocalByteArray [
+	| localByteArray |
+	localByteArray := ByteArray new: self byteSize .
+	1 to: localByteArray size do: [ :i |
+		localByteArray byteAt: i put: (self at: i).
+	].
+	^ localByteArray
+]
+
+{ #category : #accessing }
+SpurByteLayout >> at: anInteger [ 
+	
+	" ToDo: consider inst vars "
+	| slotIndex byteIndex |
+	slotIndex := (anInteger - 1) // self wordSize .
+	byteIndex := (anInteger - 1) %  self wordSize .
+	^ (self slotAt: slotIndex + 1) at: byteIndex + 1
+]
+
+{ #category : #accessing }
 SpurByteLayout >> slotAt: anInteger [ 
 	
-	| bodyAddress isLastSlot length |
+	| bodyAddress |
 	self assert: anInteger > 0 description: 'Index must be greater than 0'.
 	self assert: self numberOfSlots >= anInteger description: 'Index Out of Bounds'.
 
-	isLastSlot := anInteger = self numberOfSlots .
-	 
-	length := isLastSlot 
-						ifTrue: [ (self object format % 16 ) // self wordSize  ]
-						ifFalse: [ self wordSize - 1 ].	
 	bodyAddress := self address + self headerSize + ((anInteger - 1) * self wordSize).
-	^ (self memory copyFrom: bodyAddress to: bodyAddress + length).
+	
+	^ self memory copyFrom: bodyAddress to: bodyAddress + self wordSize -1
 	
 ]
