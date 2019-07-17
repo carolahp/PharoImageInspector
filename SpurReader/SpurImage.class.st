@@ -25,9 +25,30 @@ SpurImage class >> onFile: aFile [
 
 	| memory |
 	memory := aFile asFileReference binaryReadStream contents.
+	^ self onMemory: memory
+]
+
+{ #category : #'as yet unclassified' }
+SpurImage class >> onMemory: aByteArray [
+
+	^ self basicNew
+		memory: aByteArray;
+		initialize;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+SpurImage class >> onSpurSimulator: aSpur32BitMMLESimulator [
+	| memory nilOop |
+	nilOop := aSpur32BitMMLESimulator nilObject. 
+	memory := aSpur32BitMMLESimulator memory asByteArray.
+	"memory := fullMemory  copyFrom: nilOop + 1 to: fullMemory size."
+	  
 	^ self basicNew
 		memory: memory;
-		initialize;
+		headerSize: nilOop;
+		specialObjectsArrayOop: aSpur32BitMMLESimulator specialObjectsOop;
+		oldBaseAddress: nilOop;
 		yourself
 ]
 
@@ -124,6 +145,11 @@ SpurImage >> headerSize [
 	^ headerSize
 ]
 
+{ #category : #accessing }
+SpurImage >> headerSize: anInteger [ 
+	headerSize := anInteger
+]
+
 { #category : #'special-objects' }
 SpurImage >> hiddenRootsObj [
 
@@ -175,6 +201,11 @@ SpurImage >> nilObject [
 { #category : #accessing }
 SpurImage >> oldBaseAddress [
 	^ oldBaseAddress
+]
+
+{ #category : #access }
+SpurImage >> oldBaseAddress: anInteger [ 
+	oldBaseAddress := anInteger
 ]
 
 { #category : #'special-classes' }
@@ -229,6 +260,11 @@ SpurImage >> smallIntegerClass [
 SpurImage >> specialObjectsArray [
 
 	^ SpurObject on: specialObjectsArrayOop - oldBaseAddress + headerSize + 1 image: self
+]
+
+{ #category : #accessing }
+SpurImage >> specialObjectsArrayOop: anInteger [ 
+	specialObjectsArrayOop := anInteger
 ]
 
 { #category : #'special-objects' }
