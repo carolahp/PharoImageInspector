@@ -23,7 +23,7 @@ SpurLayout class >> layoutClassFromFormat: objFormat [
 SpurLayout class >> on: aSpurObject image: aSpurImage [
 	| layoutClass |
 	 
-	layoutClass := self layoutClassFromFormat: aSpurObject format.
+	layoutClass := self layoutClassFromFormat: aSpurObject objectFormat.
 	
 	^ layoutClass new 
 		object: aSpurObject.
@@ -47,6 +47,13 @@ SpurLayout >> basicNumberOfSlots [
 { #category : #accessing }
 SpurLayout >> byteSize [
 	^ self object byteSize .
+]
+
+{ #category : #'gt-inspector-extension' }
+SpurLayout >> gtInspectorLayoutIn: composite [
+	^composite text
+		title: 'Layout view';
+		display: [ self object asString	]
 ]
 
 { #category : #accessing }

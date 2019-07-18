@@ -9,6 +9,13 @@ SpurFixedLayout >> asLocalByteArray [
 	^ self shouldNotImplement 
 ]
 
+{ #category : #'gt-inspector-extension' }
+SpurFixedLayout >> gtInspectorLayoutIn: composite [
+	^composite text
+		title: 'FixedLayout view';
+		display: [ self object asString	]
+]
+
 { #category : #accessing }
 SpurFixedLayout >> slotAt: anInteger [ 
 	

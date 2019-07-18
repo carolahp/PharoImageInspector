@@ -14,8 +14,8 @@ SpurHiddenRoots >> classOrNilAtIndex: classIndex [
 	classTablePage := self classTablePageNumber: (classIndex >> image classTableMajorIndexShift) + 1.
 	classTablePage = nilObj ifTrue:
 		[^nilObj].
-	^ classTablePage
-		slotAt: (classIndex bitAnd: image classTableMinorIndexMask) + 1
+	^ (classTablePage
+		slotAt: (classIndex bitAnd: image classTableMinorIndexMask) + 1) asSpurClass
 ]
 
 { #category : #'as yet unclassified' }

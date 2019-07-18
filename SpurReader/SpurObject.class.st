@@ -73,6 +73,16 @@ SpurObject >> asLocalByteArray [
 	^ self spurLayout asLocalByteArray 
 ]
 
+{ #category : #converting }
+SpurObject >> asSpurClass [
+	^ SpurClass on: self address image: self image
+]
+
+{ #category : #accessing }
+SpurObject >> basicClass [ 
+	^ self image hiddenRootsObj classOrNilAtIndex: self classIndex.
+]
+
 { #category : #'accessing-slots' }
 SpurObject >> basicNumberOfSlots [
 
@@ -97,11 +107,6 @@ SpurObject >> classIndex [
 	^ first32Bytes bitAnd: (2 raisedTo: 22) -1
 ]
 
-{ #category : #accessing }
-SpurObject >> className [ 
-	^ (self slotAt: self slotIndexForClassName) asString
-]
-
 { #category : #'as yet unclassified' }
 SpurObject >> endAddress [
 
@@ -121,13 +126,20 @@ SpurObject >> format [
 	^ (first32Bytes >> 24) bitAnd: 2r11111
 ]
 
+{ #category : #'gt-inspector-extension' }
+SpurObject >> gtInspectorLayoutIn: composite [
+	<gtInspectorPresentationOrder: 0>
+	^self spurLayout gtInspectorLayoutIn: composite
+
+]
+
 { #category : #'accessing-header' }
 SpurObject >> headerInteger [
 
 	^ self memory integerAt: address size: 8 signed: false
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'accessing-header' }
 SpurObject >> headerSize [
 
 	^ 8 "always 64 bits"
@@ -156,11 +168,6 @@ SpurObject >> indexInClassTable [
 	^ self rawHashBits
 ]
 
-{ #category : #'accessing-header' }
-SpurObject >> instSpec [ 
-	^ (self format bitShift: -16) bitAnd: 16r1F
-]
-
 { #category : #accessing }
 SpurObject >> memory [
 
@@ -183,6 +190,14 @@ SpurObject >> numberOfSlots [
 	^ self spurLayout numberOfSlots
 ]
 
+{ #category : #'accessing-header' }
+SpurObject >> objectFormat [
+	
+	| first32Bytes |
+	first32Bytes := self memory unsignedLongAt: address bigEndian: false.
+	^ (first32Bytes >> 24) bitAnd: 2r11111
+]
+
 { #category : #'as yet unclassified' }
 SpurObject >> oop [
 
@@ -195,7 +210,7 @@ SpurObject >> previousHeaderInteger [
 	^ self memory integerAt: address - self headerSize size: 4 signed: false
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'accessing-header' }
 SpurObject >> rawHashBits [
 	" Returns the index in the classTable of the class in objOop"
 	self flag: #endianness.
@@ -206,6 +221,11 @@ SpurObject >> rawHashBits [
 SpurObject >> slotAt: anInteger [ 
 	
 	^ self spurLayout slotAt: anInteger 
+]
+
+{ #category : #constants }
+SpurObject >> slotIndexForClassFormat [
+	^ 3
 ]
 
 { #category : #constants }
