@@ -68,6 +68,12 @@ SpurObject >> address: anInteger [
 	address := anInteger
 ]
 
+{ #category : #'accessing-slots' }
+SpurObject >> allSlots [
+
+	^ self spurLayout allSlots
+]
+
 { #category : #'as yet unclassified' }
 SpurObject >> asLocalByteArray [ 
 	^ self spurLayout asLocalByteArray 
@@ -210,6 +216,11 @@ SpurObject >> previousHeaderInteger [
 	^ self memory integerAt: address - self headerSize size: 4 signed: false
 ]
 
+{ #category : #'accessing - instance variables' }
+SpurObject >> printOn: aStream [
+	self spurLayout objectPrintOn: aStream
+]
+
 { #category : #'accessing-header' }
 SpurObject >> rawHashBits [
 	" Returns the index in the classTable of the class in objOop"
@@ -230,7 +241,27 @@ SpurObject >> slotIndexForClassFormat [
 
 { #category : #constants }
 SpurObject >> slotIndexForClassName [
-	^ 7
+	^ 4
+]
+
+{ #category : #constants }
+SpurObject >> slotIndexForMetaclassInstanceVariableNames [
+	^ 5
+]
+
+{ #category : #constants }
+SpurObject >> slotIndexForMetaclassSoleInstance [
+	^ 4
+]
+
+{ #category : #constants }
+SpurObject >> slotIndexForSuperclass [
+	^ 1
+]
+
+{ #category : #testing }
+SpurObject >> spIsNil [
+	^ self address = self image nilObject address
 ]
 
 { #category : #accessing }

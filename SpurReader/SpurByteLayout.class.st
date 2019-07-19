@@ -25,6 +25,11 @@ SpurByteLayout >> at: anInteger [
 ]
 
 { #category : #accessing }
+SpurByteLayout >> objectPrintOn: aStream [
+	aStream nextPutAll: self object asLocalByteArray asString
+]
+
+{ #category : #accessing }
 SpurByteLayout >> slotAt: anInteger [ 
 	
 	| bodyAddress |

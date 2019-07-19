@@ -21,7 +21,6 @@ SpurImageTests class >> imageCandle [
 SpurImageTests >> testCandleClassIndex [
 	| image |
 	image := self class imageCandle.
-	self halt.
 	self 
 		assert: (image  hiddenRootsObj classOrNilAtIndex: (image trueObject classIndex)) indexInClassTable
 		equals: (image trueObject classIndex).

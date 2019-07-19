@@ -9,13 +9,19 @@ Class {
 
 { #category : #'as yet unclassified' }
 SpurLayout class >> layoutClassFromFormat: objFormat [
-	"(objFormat = 1)
-		ifTrue: [ ^ SpurFixedLayout ]."
+	(objFormat = 0)
+		ifTrue: [ ^ SpurEmptyLayout ].
+	(objFormat = 3)
+		ifTrue: [ ^SpurVariableWIVLayout ].
+	(objFormat = 1)
+		ifTrue: [ ^ SpurFixedLayout ].
 	
-	(objFormat < 24 and: [ objFormat > 15 ])
+	(objFormat < 24 and: [ objFormat > 9 ])
 		ifTrue: [ ^ SpurByteLayout ].
-		
-	^ SpurFixedLayout 
+	
+	(objFormat = 2) 
+		ifTrue: [ ^ SpurVariableLayout ].
+	^ self error. 
 	
 ]
 
@@ -35,8 +41,9 @@ SpurLayout >> address [
 ]
 
 { #category : #accessing }
-SpurLayout >> asLocalByteArray [
-	^ self subclassResponsibility 
+SpurLayout >> at: anInteger [ 
+	
+	^ self slotAt: anInteger
 ]
 
 { #category : #accessing }
@@ -52,7 +59,7 @@ SpurLayout >> byteSize [
 { #category : #'gt-inspector-extension' }
 SpurLayout >> gtInspectorLayoutIn: composite [
 	^composite text
-		title: 'Layout view';
+		title: 'Spur view';
 		display: [ self object asString	]
 ]
 
@@ -96,9 +103,39 @@ SpurLayout >> object: anObject [
 	object := anObject
 ]
 
+{ #category : #printing }
+SpurLayout >> objectPrintOn: aStream [
+	aStream nextPutAll: 'a ', (self object basicClass asString)
+]
+
 { #category : #accessing }
 SpurLayout >> previousHeaderInteger [ 
 	^ self object previousHeaderInteger
+]
+
+{ #category : #accessing }
+SpurLayout >> slotAt: anInteger [ 
+	
+	| bodyAddress first32Bits last2bits lastBit |
+	self assert: anInteger > 0 description: 'Index must be greater than 0'.
+	self assert: self numberOfSlots >= anInteger description: 'Index Out of Bounds'.
+
+	bodyAddress := self address + self headerSize + ((anInteger - 1) * self wordSize).
+	first32Bits := self memory longAt: bodyAddress bigEndian: false.
+	last2bits := first32Bits bitAnd: 2r11.
+	
+	last2bits ~= 0 
+		ifTrue: [ 
+			"is inmediate" 
+			lastBit := last2bits bitAnd: 2r01.
+			lastBit = 1
+				ifTrue: [ 
+					"Smallinteger"
+					 ^ (first32Bits >> 1) as31BitSmallInt ]
+				ifFalse: [ 
+					"Character"
+					self halt: 'wrong layout' ]  ].
+	^ SpurObject on: first32Bits - self image oldBaseAddress + self image headerSize + 1 image: self image
 ]
 
 { #category : #accessing }

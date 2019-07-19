@@ -1,5 +1,5 @@
 Class {
-	#name : #SpurFixedLayout,
+	#name : #SpurVariableWIVLayout,
 	#superclass : #SpurLayout,
 	#category : #SpurReader
 }
