@@ -139,6 +139,13 @@ SpurImage >> freeListObj [
 	^ self trueObject 	nextObject
 ]
 
+{ #category : #'gt-inspector-extension' }
+SpurImage >> gtInspectorSpecialObjectsArrayIn: composite [
+	<gtInspectorPresentationOrder: 1>
+	
+	^ (self specialObjectsArray gtInspectorLayoutIn: composite) title: 'SOArray' 
+]
+
 { #category : #accessing }
 SpurImage >> headerSize [
 

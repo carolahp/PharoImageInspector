@@ -45,11 +45,11 @@ Class {
 
 { #category : #'as yet unclassified' }
 SpurObject class >> on: address image: anImage [
-
-	^ self new
+	^self new
 		address: address;
 		image: anImage;
-		yourself
+		yourself.
+	
 ]
 
 { #category : #accessing }

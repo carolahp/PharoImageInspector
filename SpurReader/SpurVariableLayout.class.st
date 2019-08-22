@@ -16,6 +16,6 @@ SpurVariableLayout >> gtInspectorLayoutIn: composite [
 		display: [ 
 			self allSlots collectWithIndex: [ :slot :index | index -> slot  ] ];
 		column: 'Index' evaluated: [:each |  each key ];
-		column: 'Ialue' evaluated: [ :each | each value ];
+		column: 'Value' evaluated: [ :each | each value ];
 		send: #value
 ]
