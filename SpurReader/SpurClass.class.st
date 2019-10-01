@@ -17,7 +17,7 @@ SpurClass >> classFormat [
 { #category : #accessing }
 SpurClass >> className [ 
 	^ [(self slotAt: self slotIndexForClassName) asLocalByteArray asString] on: Error 
-		do: [ (self slotAt: self slotIndexForMetaclassSoleInstance ) asSpurClass className , 'class'] 
+		do: [ (self slotAt: self slotIndexForMetaclassSoleInstance ) asSpurClass className , ' class'] 
 	
 ]
 

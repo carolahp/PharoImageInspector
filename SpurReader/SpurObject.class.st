@@ -241,17 +241,21 @@ SpurObject >> slotIndexForClassFormat [
 
 { #category : #constants }
 SpurObject >> slotIndexForClassName [
-	^ 4
+	self flag: '4 for Candle'.
+	^ "4" 7
 ]
 
 { #category : #constants }
-SpurObject >> slotIndexForMetaclassInstanceVariableNames [
-	^ 5
+SpurObject >> slotIndexForMetaclassInstanceVariableNames [	
+	self flag: '5 for Candle'.
+	^ "5" 0
 ]
 
 { #category : #constants }
 SpurObject >> slotIndexForMetaclassSoleInstance [
-	^ 4
+	self flag: '4 for Candle'.
+	
+	^ "4" 6
 ]
 
 { #category : #constants }
