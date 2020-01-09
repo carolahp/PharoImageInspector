@@ -1,20 +1,19 @@
 Class {
 	#name : #SpurImageTests,
 	#superclass : #TestCase,
-	#classInstVars : [
-		'image'
-	],
 	#category : #'SpurReader-Tests'
 }
 
 { #category : #accessing }
 SpurImageTests class >> image [
-	^ image ifNil: [image := SpurImage onFile: '/Users/carolina.hernandez/Documents/Pharo/pharo-development/testVince/Pharo.image']
+
+	^ SpurImage onFile: '/Users/theo/Documents/Pharo/images/TestImage/TestImage.image'
+	"^ SpurImage onFile: '/Users/theo/Documents/Pharo/images/CaroInsp/CaroInsp.image'"
 ]
 
 { #category : #accessing }
 SpurImageTests class >> imageCandle [
-	^ image ifNil: [image := SpurImage onFile: '/Users/carolina.hernandez/Documents/Pharo/pharo-development/20190624PharoBootstrapRefactor/pharo/bootstrap/scripts/pharo/bootstrap.image']
+	^ SpurImage onFile: '/Users/theo/Documents/Pharo/images/CaroInsp/CaroInsp.image'
 ]
 
 { #category : #tests }
@@ -33,7 +32,9 @@ SpurImageTests >> testCandleClassIndex [
 { #category : #tests }
 SpurImageTests >> testClassIndex [
 	| image |
+
 	image := self class image.
+	
 	self 
 		assert: (image  hiddenRootsObj classOrNilAtIndex: (image trueObject classIndex)) indexInClassTable
 		equals: (image trueObject classIndex).
@@ -46,10 +47,11 @@ SpurImageTests >> testClassIndex [
 { #category : #tests }
 SpurImageTests >> testSpecialObjectsArrayClass [
 	| image |
+
 	image := self class image.
 	self 
 		assert: (image specialObjectsArray classIndex)
 		equals: (image arrayClass) indexInClassTable.
-
+1halt.
 
 ]

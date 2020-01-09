@@ -11,24 +11,29 @@ Class {
 SpurLayout class >> layoutClassFromFormat: objFormat [
 	(objFormat = 0)
 		ifTrue: [ ^ SpurEmptyLayout ].
-	(objFormat = 3)
-		ifTrue: [ ^SpurVariableWIVLayout ].
 	(objFormat = 1)
 		ifTrue: [ ^ SpurFixedLayout ].
-	
-	(objFormat < 24 and: [ objFormat > 9 ])
-		ifTrue: [ ^ SpurByteLayout ].
-	
 	(objFormat = 2) 
-		ifTrue: [ ^ SpurVariableLayout ].
-	^ self error. 
+		ifTrue: [ ^ SpurVariableLayout ].	
+	(objFormat = 3)
+		ifTrue: [ ^SpurVariableWIVLayout ].
+	(objFormat = 4)
+		ifTrue: [ ^SpurVariableWIVLayout ].
+	(objFormat = 5)
+		ifTrue: [ ^SpurVariableWIVLayout ].	
+
+	(objFormat < 24 and: [ objFormat > 8 ])
+		ifTrue: [ ^ SpurByteLayout ].
+		
+	^ self error: 'Unused or invalid format.'
 	
 ]
 
 { #category : #'as yet unclassified' }
 SpurLayout class >> on: aSpurObject image: aSpurImage [
 	| layoutClass |
-	 
+	"TH; Why passing the image here ?" 
+	
 	layoutClass := self layoutClassFromFormat: aSpurObject objectFormat.
 	
 	^ layoutClass new 
@@ -60,7 +65,7 @@ SpurLayout >> byteSize [
 SpurLayout >> gtInspectorLayoutIn: composite [
 	^composite text
 		title: 'Spur view';
-		display: [ self object asString	]
+		display: [ [self object asString] on:Error do: [ 'Error printing' ]	]
 ]
 
 { #category : #accessing }
@@ -121,7 +126,7 @@ SpurLayout >> slotAt: anInteger [
 	self assert: self numberOfSlots >= anInteger description: 'Index Out of Bounds'.
 
 	bodyAddress := self address + self headerSize + ((anInteger - 1) * self wordSize).
-	first32Bits := self memory longAt: bodyAddress bigEndian: false.
+	first32Bits := self memory long64At: bodyAddress bigEndian: false.
 	last2bits := first32Bits bitAnd: 2r11.
 	
 	last2bits ~= 0 

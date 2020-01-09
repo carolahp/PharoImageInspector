@@ -11,6 +11,7 @@ Class {
 	#name : #SpurImage,
 	#superclass : #Object,
 	#instVars : [
+		'format',
 		'memory',
 		'headerSize',
 		'dataSize',
@@ -34,6 +35,23 @@ SpurImage class >> onMemory: aByteArray [
 	^ self basicNew
 		memory: aByteArray;
 		initialize;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+SpurImage class >> onMyself [
+| memory nilOop VM|
+	"nilOop := aSpur32BitMMLESimulator nilObject. 
+	memory := aSpur32BitMMLESimulator memory asByteArray.
+	memory := fullMemory  copyFrom: nilOop + 1 to: fullMemory size."
+	VM = VirtualMachine new.
+	  
+	^ self basicNew	
+		memory: memory;
+		version: VM parameterAt: 41;
+		headerSize: nilOop;
+		specialObjectsArrayOop: VM specialObjectsOop;
+		oldBaseAddress: nilOop;
 		yourself
 ]
 
@@ -133,6 +151,11 @@ SpurImage >> firstObject [
 	^ SpurObject on: headerSize + 1 image: self
 ]
 
+{ #category : #accessing }
+SpurImage >> format [ 
+	^format
+]
+
 { #category : #'special-objects' }
 SpurImage >> freeListObj [
 
@@ -143,7 +166,7 @@ SpurImage >> freeListObj [
 SpurImage >> gtInspectorSpecialObjectsArrayIn: composite [
 	<gtInspectorPresentationOrder: 1>
 	
-	^ (self specialObjectsArray gtInspectorLayoutIn: composite) title: 'SOArray' 
+	^ [(self specialObjectsArray gtInspectorLayoutIn: composite) title: 'SOArray' ] on:Error do: [ 'lalala' ]
 ]
 
 { #category : #accessing }
@@ -170,6 +193,16 @@ SpurImage >> initialize [
 
 	super initialize.
 	self readImageHeader.
+]
+
+{ #category : #'special-classes' }
+SpurImage >> is32bit [
+ ^(format = 32) 
+]
+
+{ #category : #'special-classes' }
+SpurImage >> is64bit [
+ ^(format = 64) 
 ]
 
 { #category : #'special-classes' }
@@ -224,31 +257,82 @@ SpurImage >> pointClass [
 { #category : #accessing }
 SpurImage >> readImageHeader [
 
-	| version lastHash savedWindowSize headerFlags |
-	version := (memory copyFrom: 1 to: 4) unsignedLongAt: 1 bigEndian: false.
-	headerSize := (memory copyFrom: 5 to: 8)
-		unsignedLongAt: 1
-		bigEndian: false.
-	dataSize := (memory copyFrom: 9 to: 12)
-		unsignedLongAt: 1
-		bigEndian: false.
-	self assert: headerSize + dataSize = memory size.
+"Reading the version will allow us to find the format"
+	self readVersionFromImageHeader.
+	self is32bit ifTrue:[
+		self readImageHeader32 ].
+	self is64bit ifTrue:[
+		self readImageHeader64 ]
+  
+]
 
+{ #category : #accessing }
+SpurImage >> readImageHeader32 [
+	| lastHash savedWindowSize headerFlags |
+	
+	headerSize := (memory copyFrom: 5 to: 8)
+		              unsignedLongAt: 1
+		              bigEndian: false.
+	dataSize := (memory copyFrom: 9 to: 12)
+		            unsignedLongAt: 1
+		            bigEndian: false.
+	self assert: headerSize + dataSize = memory size.
 	oldBaseAddress := (memory copyFrom: 13 to: 16)
-		unsignedLongAt: 1
-		bigEndian: false.
+		                  unsignedLongAt: 1
+		                  bigEndian: false.
 	specialObjectsArrayOop := (memory copyFrom: 17 to: 20)
-		unsignedLongAt: 1
-		bigEndian: false.
+		                          unsignedLongAt: 1
+		                          bigEndian: false.
 	lastHash := (memory copyFrom: 21 to: 24)
-		unsignedLongAt: 1
-		bigEndian: false.
+		            unsignedLongAt: 1
+		            bigEndian: false.
 	savedWindowSize := (memory copyFrom: 25 to: 28)
-		unsignedLongAt: 1
-		bigEndian: false.
+		                   unsignedLongAt: 1
+		                   bigEndian: false.
 	headerFlags := (memory copyFrom: 29 to: 32)
-		unsignedLongAt: 1
-		bigEndian: false.
+		               unsignedLongAt: 1
+		               bigEndian: false
+]
+
+{ #category : #accessing }
+SpurImage >> readImageHeader64 [
+	| lastHash savedWindowSize headerFlags |
+	
+	headerSize := (memory copyFrom: 5 to: 8)
+		              unsignedLongAt: 1
+		              bigEndian: false.
+	dataSize := (memory copyFrom: 9 to: 16) 
+		            unsignedLong64At: 1
+		            bigEndian: false.
+	self assert: headerSize + dataSize = memory size.
+	oldBaseAddress := (memory copyFrom: 17 to: 24)
+		                  unsignedLong64At: 1
+		                  bigEndian: false.
+	specialObjectsArrayOop := (memory copyFrom: 25 to: 32)
+		                          unsignedLong64At: 1
+		                          bigEndian: false.
+	lastHash := (memory copyFrom: 33 to: 40)
+		            unsignedLong64At: 1
+		            bigEndian: false.
+	savedWindowSize := (memory copyFrom: 41 to: 48)
+		                   unsignedLong64At: 1
+		                   bigEndian: false.
+	headerFlags := (memory copyFrom: 49 to: 56)
+		               unsignedLong64At: 1
+		               bigEndian: false
+]
+
+{ #category : #accessing }
+SpurImage >> readVersionFromImageHeader [
+	| version |
+	version := (memory copyFrom: 1 to: 4)
+		           unsignedLongAt: 1
+		           bigEndian: false.
+	self flag: #ugly.
+	version < 10000
+		ifTrue: [  format := 32]
+		ifFalse: [  format := 64].
+	
 ]
 
 { #category : #'special-classes' }

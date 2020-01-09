@@ -218,7 +218,10 @@ SpurObject >> previousHeaderInteger [
 
 { #category : #'accessing - instance variables' }
 SpurObject >> printOn: aStream [
-	self spurLayout objectPrintOn: aStream
+
+	[ self spurLayout objectPrintOn: aStream ]
+		on: Error
+		do: [ aStream << 'error printing' ]
 ]
 
 { #category : #'accessing-header' }
@@ -281,5 +284,5 @@ SpurObject >> spurLayout: anObject [
 { #category : #constants }
 SpurObject >> wordSize [
 
-	^ 4
+	^ (image format)/8 
 ]
