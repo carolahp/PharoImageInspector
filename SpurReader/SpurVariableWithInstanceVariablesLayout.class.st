@@ -1,5 +1,5 @@
 Class {
-	#name : #SpurVariableWIVLayout,
+	#name : #SpurVariableWithInstanceVariablesLayout,
 	#superclass : #SpurLayout,
 	#category : #SpurReader
 }

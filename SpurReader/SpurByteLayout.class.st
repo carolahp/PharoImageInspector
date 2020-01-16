@@ -38,6 +38,6 @@ SpurByteLayout >> slotAt: anInteger [
 
 	bodyAddress := self address + self headerSize + ((anInteger - 1) * self wordSize).
 	
-	^ self memory copyFrom: bodyAddress to: bodyAddress + self wordSize -1
+	^ self memory copyFrom: bodyAddress to: bodyAddress + self wordSize + (0 - 1) 
 	
 ]

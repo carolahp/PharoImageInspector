@@ -16,14 +16,19 @@ SpurLayout class >> layoutClassFromFormat: objFormat [
 	(objFormat = 2) 
 		ifTrue: [ ^ SpurVariableLayout ].	
 	(objFormat = 3)
-		ifTrue: [ ^SpurVariableWIVLayout ].
+		ifTrue: [ ^SpurVariableWithInstanceVariablesLayout ].
 	(objFormat = 4)
-		ifTrue: [ ^SpurVariableWIVLayout ].
+		ifTrue: [ ^SpurVariableWithInstanceVariablesLayout ].
 	(objFormat = 5)
-		ifTrue: [ ^SpurVariableWIVLayout ].	
+		ifTrue: [ ^SpurVariableWithInstanceVariablesLayout ].	
+			
+	(objFormat = 7)
+		ifTrue: [ ^SpurImmediateLayout].
 
 	(objFormat < 24 and: [ objFormat > 8 ])
 		ifTrue: [ ^ SpurByteLayout ].
+	(objFormat < 32 and: [ objFormat > 23 ])
+		ifTrue: [ ^ SpurCompiledMethodLayout ].
 		
 	^ self error: 'Unused or invalid format.'
 	
@@ -83,6 +88,12 @@ SpurLayout >> image [
 	^ self object image
 ]
 
+{ #category : #testing }
+SpurLayout >> isCompiledMethod [
+
+	^ false
+]
+
 { #category : #accessing }
 SpurLayout >> memory [
 	^ self object memory
@@ -121,26 +132,31 @@ SpurLayout >> previousHeaderInteger [
 { #category : #accessing }
 SpurLayout >> slotAt: anInteger [ 
 	
-	| bodyAddress first32Bits last2bits lastBit |
+	| bodyAddress slotWord last2bits lastBit |
 	self assert: anInteger > 0 description: 'Index must be greater than 0'.
 	self assert: self numberOfSlots >= anInteger description: 'Index Out of Bounds'.
 
 	bodyAddress := self address + self headerSize + ((anInteger - 1) * self wordSize).
-	first32Bits := self memory long64At: bodyAddress bigEndian: false.
-	last2bits := first32Bits bitAnd: 2r11.
+	slotWord := self memory long64At: bodyAddress bigEndian: false.
+	
+	"32bits => last2bits := slotWord bitAnd: 2r11."
+	last2bits := slotWord bitAnd: 2r111.
 	
 	last2bits ~= 0 
 		ifTrue: [ 
 			"is inmediate" 
-			lastBit := last2bits bitAnd: 2r01.
+			"32bits => lastBit := last2bits bitAnd: 2r01."
+			lastBit := last2bits bitAnd: 2r001.
 			lastBit = 1
 				ifTrue: [ 
 					"Smallinteger"
-					 ^ (first32Bits >> 1) as31BitSmallInt ]
+					"32bits => ^ (slotWord >> 1) as31BitSmallInt "
+					 ^ (slotWord >> 3) ]
 				ifFalse: [ 
 					"Character"
 					self halt: 'wrong layout' ]  ].
-	^ SpurObject on: first32Bits - self image oldBaseAddress + self image headerSize + 1 image: self image
+
+	^ SpurObject on: (self image objectAt: bodyAddress) image: self image
 ]
 
 { #category : #accessing }
