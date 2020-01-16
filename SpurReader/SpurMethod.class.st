@@ -48,5 +48,5 @@ SpurMethod >> selector [
 	selectorLiteral := self penultimateLiteral.
 	offset := ((2 * (8 * selectorLiteral slots)) - 8) - selectorLiteral objectFormat.
 	"Assume there is a ByteSymbol here; it can also be AdditionalMethodState"
-	^ (selectorLiteral handle copyFrom: 9 to: 9 + offset) utf8Decoded
+	^ (selectorLiteral address copyFrom: 9 to: 9 + offset) utf8Decoded
 ]
