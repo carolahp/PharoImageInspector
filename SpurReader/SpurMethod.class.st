@@ -43,10 +43,13 @@ SpurMethod >> penultimateLiteral [
 
 { #category : #accessing }
 SpurMethod >> selector [
-	
-	| selectorLiteral offset |
+	| selectorLiteral |
 	selectorLiteral := self penultimateLiteral.
-	offset := ((2 * (8 * selectorLiteral slots)) - 8) - selectorLiteral objectFormat.
-	"Assume there is a ByteSymbol here; it can also be AdditionalMethodState"
-	^ (selectorLiteral address copyFrom: 9 to: 9 + offset) utf8Decoded
+	(selectorLiteral basicClass asSpurClass className
+		= 'AdditionalMethodState')
+		ifFalse: [ ^ self image printByteSymbol: selectorLiteral ]
+		ifTrue: [ | selectorInAdditional |
+			selectorInAdditional := selectorLiteral
+				slotAt: 2. "Supossed to be the selector"
+			^ self image printByteSymbol: selectorInAdditional ]
 ]
