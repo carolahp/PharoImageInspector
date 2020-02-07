@@ -16,8 +16,11 @@ SpurClass >> classFormat [
 
 { #category : #accessing }
 SpurClass >> className [ 
-	^ [(self slotAt: self slotIndexForClassName) asLocalByteArray asString] on: Error 
-		do: [ (self slotAt: self slotIndexForMetaclassSoleInstance ) asSpurClass className , ' class'] 
+"We assume this is a byteSymbol here"
+	^ self image printByteSymbol: (self slotAt: self slotIndexForClassName) 
+	
+	" ] on: Error 
+		do: [ (self slotAt: self slotIndexForMetaclassSoleInstance ) asSpurClass className , ' class'] "
 	
 ]
 
@@ -52,6 +55,12 @@ SpurClass >> instSpec [
 	^ (self classFormat bitShift: -16) bitAnd: 16r1F
 ]
 
+{ #category : #accessing }
+SpurClass >> methodDictionary [
+
+	^ SpurMethodDictionary on: (self slotAt: self slotIndexForMethodDictionary) address image: self image
+]
+
 { #category : #'accessing - instance variables' }
 SpurClass >> printOn: aStream [
 	aStream nextPutAll: self className
@@ -59,12 +68,46 @@ SpurClass >> printOn: aStream [
 	
 ]
 
+{ #category : #constants }
+SpurClass >> slotIndexForClassFormat [
+	^ 3
+]
+
+{ #category : #constants }
+SpurClass >> slotIndexForClassName [
+	self flag: '4 for Candle'.
+	^ "4" 7
+]
+
+{ #category : #constants }
+SpurClass >> slotIndexForMetaclassInstanceVariableNames [	
+	self flag: '5 for Candle'.
+	^ "5" 0
+]
+
+{ #category : #constants }
+SpurClass >> slotIndexForMetaclassSoleInstance [
+	self flag: '4 for Candle'.
+	
+	^ "4" 6
+]
+
+{ #category : #constants }
+SpurClass >> slotIndexForMethodDictionary [
+
+	^ 2
+]
+
+{ #category : #constants }
+SpurClass >> slotIndexForSuperclass [
+	^ 1
+]
+
 { #category : #accessing }
 SpurClass >> spSuperclass [
 	| superclassOrNil |
-	superclassOrNil := (self slotAt: self slotIndexForSuperclass).
-	(superclassOrNil spIsNil)
-		ifTrue: [ ^ superclassOrNil ]
-		ifFalse: [ ^ superclassOrNil asSpurClass  ]
-	 
+	superclassOrNil := self slotAt: self slotIndexForSuperclass.
+	^ superclassOrNil spIsNil
+		ifTrue: [ superclassOrNil ]
+		ifFalse: [ superclassOrNil asSpurClass ]
 ]

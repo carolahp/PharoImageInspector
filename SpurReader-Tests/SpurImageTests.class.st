@@ -1,20 +1,12 @@
 Class {
 	#name : #SpurImageTests,
-	#superclass : #TestCase,
-	#classInstVars : [
-		'image'
-	],
+	#superclass : #SpurReaderAbstractTests,
 	#category : #'SpurReader-Tests'
 }
 
 { #category : #accessing }
-SpurImageTests class >> image [
-	^ image ifNil: [image := SpurImage onFile: '/Users/carolina.hernandez/Documents/Pharo/pharo-development/testVince/Pharo.image']
-]
-
-{ #category : #accessing }
 SpurImageTests class >> imageCandle [
-	^ image ifNil: [image := SpurImage onFile: '/Users/carolina.hernandez/Documents/Pharo/pharo-development/20190624PharoBootstrapRefactor/pharo/bootstrap/scripts/pharo/bootstrap.image']
+	^ SpurFileImage onFile: '/Users/theo/Documents/Pharo/images/CaroInsp/CaroInsp.image'
 ]
 
 { #category : #tests }
@@ -31,11 +23,17 @@ SpurImageTests >> testCandleClassIndex [
 ]
 
 { #category : #tests }
-SpurImageTests >> testClassIndex [
-	| image |
-	image := self class image.
+SpurImageTests >> testClassHasMethodDictionary [
+
 	self 
-		assert: (image  hiddenRootsObj classOrNilAtIndex: (image trueObject classIndex)) indexInClassTable
+		assert: image arrayClass asSpurClass methodDictionary basicClass className
+		equals: 'MethodDictionary'
+]
+
+{ #category : #tests }
+SpurImageTests >> testClassIndex [
+	self 
+		assert: (image hiddenRootsObj classOrNilAtIndex: (image trueObject classIndex)) indexInClassTable
 		equals: (image trueObject classIndex).
 
 	self 
@@ -44,12 +42,41 @@ SpurImageTests >> testClassIndex [
 ]
 
 { #category : #tests }
-SpurImageTests >> testSpecialObjectsArrayClass [
-	| image |
-	image := self class image.
+SpurImageTests >> testClassNameIsString [
 	self 
-		assert: (image specialObjectsArray classIndex)
-		equals: (image arrayClass) indexInClassTable.
+		assert: image arrayClass asSpurClass className
+		equals: 'Array'
+]
 
+{ #category : #tests }
+SpurImageTests >> testFirstObjectIsNil [
 
+	self 
+		assert: image firstObject
+		equals: image nilObject
+]
+
+{ #category : #tests }
+SpurImageTests >> testNilHasAnInstanceVariableAndHeader [
+	
+	| start end |
+	start := image nilObject address.
+	end := image nilObject endAddress.
+	self 
+		assert: end - start
+		equals: 2 * 8 "bytes"
+]
+
+{ #category : #tests }
+SpurImageTests >> testSecondObjectIsFalse [
+	self 
+		assert: image firstObject nextObject
+		equals: image falseObject
+]
+
+{ #category : #tests }
+SpurImageTests >> testSpecialObjectsArrayClass [
+	self 
+		assert: (image specialObjectsArray slotAt: 1) address
+		equals: image nilObject address
 ]

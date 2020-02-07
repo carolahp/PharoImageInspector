@@ -108,9 +108,7 @@ SpurObject >> byteSize [
 { #category : #'accessing-header' }
 SpurObject >> classIndex [
 	
-	| first32Bytes |
-	first32Bytes := self memory unsignedLongAt: address bigEndian: false.
-	^ first32Bytes bitAnd: (2 raisedTo: 22) -1
+	^ self headerInteger bitAnd: (2 raisedTo: 22) -1
 ]
 
 { #category : #'as yet unclassified' }
@@ -127,9 +125,7 @@ SpurObject >> endAddress [
 { #category : #'accessing-header' }
 SpurObject >> format [
 	
-	| first32Bytes |
-	first32Bytes := self memory unsignedLongAt: address bigEndian: false.
-	^ (first32Bytes >> 24) bitAnd: 2r11111
+	^ (self headerInteger  >> 24) bitAnd: 2r11111
 ]
 
 { #category : #'gt-inspector-extension' }
@@ -199,9 +195,7 @@ SpurObject >> numberOfSlots [
 { #category : #'accessing-header' }
 SpurObject >> objectFormat [
 	
-	| first32Bytes |
-	first32Bytes := self memory unsignedLongAt: address bigEndian: false.
-	^ (first32Bytes >> 24) bitAnd: 2r11111
+	^ (self headerInteger >> 24) bitAnd: 2r11111
 ]
 
 { #category : #'as yet unclassified' }
@@ -213,11 +207,12 @@ SpurObject >> oop [
 { #category : #'accessing-header' }
 SpurObject >> previousHeaderInteger [
 
-	^ self memory integerAt: address - self headerSize size: 4 signed: false
+	^ self memory integerAt: address + (0 - self headerSize) size: 4 signed: false
 ]
 
 { #category : #'accessing - instance variables' }
 SpurObject >> printOn: aStream [
+
 	self spurLayout objectPrintOn: aStream
 ]
 
@@ -230,37 +225,13 @@ SpurObject >> rawHashBits [
 
 { #category : #'accessing-slots' }
 SpurObject >> slotAt: anInteger [ 
-	
+
 	^ self spurLayout slotAt: anInteger 
 ]
 
-{ #category : #constants }
-SpurObject >> slotIndexForClassFormat [
-	^ 3
-]
-
-{ #category : #constants }
-SpurObject >> slotIndexForClassName [
-	self flag: '4 for Candle'.
-	^ "4" 7
-]
-
-{ #category : #constants }
-SpurObject >> slotIndexForMetaclassInstanceVariableNames [	
-	self flag: '5 for Candle'.
-	^ "5" 0
-]
-
-{ #category : #constants }
-SpurObject >> slotIndexForMetaclassSoleInstance [
-	self flag: '4 for Candle'.
-	
-	^ "4" 6
-]
-
-{ #category : #constants }
-SpurObject >> slotIndexForSuperclass [
-	^ 1
+{ #category : #accessing }
+SpurObject >> slots [
+	^(self headerInteger bitAnd: 16rFF00000000000000) >> 56.
 ]
 
 { #category : #testing }
@@ -278,8 +249,14 @@ SpurObject >> spurLayout: anObject [
 	spurLayout := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+SpurObject >> vmPrintOop [
+
+	<primitive: 154>
+]
+
 { #category : #constants }
 SpurObject >> wordSize [
 
-	^ 4
+	^ (image format)/8 
 ]
