@@ -41,7 +41,7 @@ SpurImage class >> onMemory: aByteArray [
 SpurImage class >> onSpurSimulator: aSpur32BitMMLESimulator [
 	| memory nilOop |
 	nilOop := aSpur32BitMMLESimulator nilObject. 
-	memory := aSpur32BitMMLESimulator memory asByteArray.
+	memory := aSpur32BitMMLESimulator memory asByteArrayFromLittleEndian.
 	"memory := fullMemory  copyFrom: nilOop + 1 to: fullMemory size."
 	  
 	^ self basicNew
